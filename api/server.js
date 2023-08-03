@@ -63,7 +63,6 @@ server.post('/api/users', (req, res) => {
 server.delete('/api/users/:id', (req, res) => {
   User.remove(req.params.id)
     .then(user => {
-      console.log(user)
       if(!user) {
         res.status(404).json({
           message: "The user with the specified ID does not exist"
@@ -79,6 +78,33 @@ server.delete('/api/users/:id', (req, res) => {
         stack: err.stack
       })
     })
+})
+
+server.put('/api/users/:id', (req, res) => {
+  const updatedUser = req.body
+  if(!updatedUser.name || !updatedUser.bio) {
+    res.status(400).json({
+      message: 'Please provide name and bio for the user'
+    })
+  } else {
+    User.update(req.params.id, updatedUser)
+    .then(user => {
+      if(!user) {
+        res.status(404).json({
+          message: "The user with the specified ID does not exist",
+        })
+      } else {
+        res.json(user)
+      }
+    })
+    .catch(err => {
+      res.status(500).json({
+        message: 'error updating user',
+        err: err.message,
+        stack: err.stack
+      })
+    })
+  }
 })
 
 server.use('*', (req, res) => {
